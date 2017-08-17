@@ -11,8 +11,9 @@ class Parser
     public void Parse()
     {
         String line;
-        while((line = fileToRead.ReadLine()) != null)
+        while(!fileToRead.EndOfStream)
         {
+            line = fileToRead.ReadLine();
             Console.WriteLine(line);
         }
         fileToRead.Close();        

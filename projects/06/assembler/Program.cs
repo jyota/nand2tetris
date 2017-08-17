@@ -8,9 +8,10 @@ namespace assembler
         {
             Code myCode = new Code();
             SymbolTable mySymbolTable = new SymbolTable();
-            if (args.Length == 0)
+            if (args == null || args.Length == 0)
             {
                 System.Console.WriteLine("Need assembly source code file as argument.");
+                System.Environment.Exit(1);   
             }
 
             System.IO.StreamReader file = new System.IO.StreamReader(args[0]);
