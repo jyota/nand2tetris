@@ -2,8 +2,19 @@ using System;
 
 class Parser
 {
-    public String CallMe()
+    private System.IO.StreamReader fileToRead;
+    public Parser(System.IO.StreamReader file)
     {
-        return("Hello World!");
+        fileToRead = file;
+    }
+
+    public void Parse()
+    {
+        String line;
+        while((line = fileToRead.ReadLine()) != null)
+        {
+            Console.WriteLine(line);
+        }
+        fileToRead.Close();        
     }
 }
