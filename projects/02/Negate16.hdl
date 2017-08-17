@@ -1,0 +1,15 @@
+/**
+ * 16-bit bit-wise negation
+ * out = !in
+ */
+
+CHIP Negate16 {
+    IN in[16];
+    OUT out[16];
+
+    PARTS:
+    //Not16(in=in, out=outTmp);
+    //Inc16(in=outTmp, out=out);
+    // above was initial attempt that doesn't do BITwise negation -- instead gets negative of 2's complement
+    Not16(in=in, out=out);
+}

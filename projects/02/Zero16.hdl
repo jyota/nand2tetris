@@ -1,0 +1,21 @@
+// This file is part of www.nand2tetris.org
+// and the book "The Elements of Computing Systems"
+// by Nisan and Schocken, MIT Press.
+// File name: projects/02/Inc16.hdl
+
+/**
+ * 16-bit zero:
+ * out = 0 (turn all to 0)
+ */
+
+CHIP Zero16 {
+    IN in[16];
+    OUT out[16];
+
+    PARTS:
+    Not16(in=in, out=outTmp);
+    Inc16(in=outTmp, out=outInc);
+    Add16(a=in, b=outInc, out=out);
+    // below is an approach that's best, didn't realize could just do this 'false' notation to specify an entire 16-bit code, and thought initially I should get the negative of the input then add it to the input to get all zeros.
+    //Mux16(a=false, b=false, sel=false, out=out);
+}

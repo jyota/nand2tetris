@@ -1,0 +1,27 @@
+/**
+ * 16-bit all zero boolean:
+ * out = a[0..15] == 0
+ */
+
+CHIP AllZeros16 {
+    IN in[16];
+    OUT out;
+
+    PARTS:
+    Not16(in=in, out=outNotted);
+    And(a=outNotted[0], b=outNotted[1], out=a);
+    And(a=a, b=outNotted[2], out=b);
+    And(a=b, b=outNotted[3], out=c);
+    And(a=c, b=outNotted[4], out=d);
+    And(a=d, b=outNotted[5], out=e);
+    And(a=e, b=outNotted[6], out=f);
+    And(a=f, b=outNotted[7], out=g);
+    And(a=g, b=outNotted[8], out=h);
+    And(a=h, b=outNotted[9], out=i);
+    And(a=i, b=outNotted[10], out=j);
+    And(a=j, b=outNotted[11], out=k);
+    And(a=k, b=outNotted[12], out=L);
+    And(a=L, b=outNotted[13], out=M);
+    And(a=M, b=outNotted[14], out=n);
+    And(a=n, b=outNotted[15], out=out);
+}
