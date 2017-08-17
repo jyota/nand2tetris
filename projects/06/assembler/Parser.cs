@@ -3,11 +3,13 @@ using System.Text.RegularExpressions;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+
 class Parser
 {
     private System.IO.StreamReader fileToRead;
     private String currentCommandString;
     private IEnumerator<string> commandsSet;
+
     public Parser(System.IO.StreamReader file)
     {
         fileToRead = file;
@@ -15,20 +17,17 @@ class Parser
         commandsSet = cmdsEnumerator.GetEnumerator();
     }
 
-    public string CommandType()
+    public bool HasMoreCommands()
     {
-        if(currentCommandString == null){
-            return null;
+        return(commandsSet.MoveNext());
+    }
+
+    public void Advance()
+    {
+        if(HasMoreCommands()){
+            currentCommandString = commandsSet.Current;
         }else{
-            switch(currentCommandString[0])
-            {
-                case '@': 
-                    return("A_COMMAND");
-                case '(':
-                    return("L_COMMAND");
-                default:
-                    return("C_COMMAND");
-            }
+            currentCommandString = null;
         }
     }
 
@@ -49,10 +48,24 @@ class Parser
         }
         fileToRead.Close();
     }
-    public bool HasMoreCommands()
+
+    public string CommandType()
     {
-        return(commandsSet.MoveNext());
+        if(currentCommandString == null){
+            return null;
+        }else{
+            switch(currentCommandString[0])
+            {
+                case '@': 
+                    return("A_COMMAND");
+                case '(':
+                    return("L_COMMAND");
+                default:
+                    return("C_COMMAND");
+            }
+        }
     }
+
     public string Symbol()
     {
         List<string> validCommands = new List<string>();
@@ -65,6 +78,7 @@ class Parser
             return null;
         }
     }
+
     public string Dest()
     {
         List<string> validCommands = new List<string>();
@@ -81,6 +95,7 @@ class Parser
             return null;
         }
     }
+
     public string Comp()
     {
         List<string> validCommands = new List<string>();
@@ -97,6 +112,7 @@ class Parser
             return null;
         }
     }
+
     public string Jump()
     {
         List<string> validCommands = new List<string>();
@@ -111,14 +127,6 @@ class Parser
             }
         }else{
             return null;
-        }
-    }
-    public void Advance()
-    {
-        if(HasMoreCommands()){
-            currentCommandString = commandsSet.Current;
-        }else{
-            currentCommandString = null;
         }
     }
 
