@@ -84,7 +84,7 @@ class Parser
         List<string> validCommands = new List<string>();
         validCommands.Add("C_COMMAND");
         if(validCommands.Any(s=> s == CommandType())){
-            var regex = new Regex(@"([A-Za-z])=");
+            var regex = new Regex(@"([A-Za-z]+)=");
             var match = regex.Match(currentCommandString);
             if(match.Success){
                 return match.Groups[1].Value;
@@ -101,10 +101,14 @@ class Parser
         List<string> validCommands = new List<string>();
         validCommands.Add("C_COMMAND");
         if(validCommands.Any(s=> s == CommandType())){
-            var regex = new Regex(@"=([0-9A-Za-z\-\+]+)|([0-9A-Za-z\-\+]+);");
+            var regex = new Regex(@"=([0-9A-Za-z\-\+\!\|\&]+)");
+            var regexJmp = new Regex(@"([0-9A-Za-z\-\+\!\|\&]+);.*");
             var match = regex.Match(currentCommandString);
+            var matchJump = regexJmp.Match(currentCommandString);
             if(match.Success){
                 return match.Groups[1].Value;
+            }else if (matchJump.Success){
+                return matchJump.Groups[1].Value;
             }else{
                 return null;
             }
@@ -130,9 +134,11 @@ class Parser
         }
     }
 
-    public void Parse()
+    public IEnumerable<string> Parse()
     {
+        Code codeGenerator = new Code();
         bool firstRun=true;
+
         while((firstRun && currentCommandString == null) || (!firstRun && currentCommandString != null)){
             Advance();
             firstRun=false;
@@ -141,20 +147,16 @@ class Parser
                 string symbol = Symbol();
                 string comp = Comp();
                 string jump = Jump();
-                string builder = currentCommandString + " -- ";
-                if(!(dest == null)){
-                    builder += " -- " + dest;
+                string currentCommandType = CommandType();
+                if(currentCommandType == "A_COMMAND"){
+                    yield return codeGenerator.Ainstruction(Int16.Parse(symbol));
+                }else if(currentCommandType == "C_COMMAND"){
+                    string cInstruction = codeGenerator.Comp(comp);
+                    string dInstruction = codeGenerator.Dest(dest);
+                    string jInstruction = codeGenerator.Jump(jump);
+                    string totalInstruction = cInstruction + dInstruction + jInstruction;
+                    yield return totalInstruction.PadLeft(16, '1');
                 }
-                if(!(symbol == null)){
-                    builder += " -- " + symbol;
-                }
-                if(!(comp == null)){
-                    builder += " -- " + comp;
-                }
-                if(!(jump == null)){
-                    builder += " -- " + jump;
-                }
-                Console.WriteLine(builder);
             }
         }
     }

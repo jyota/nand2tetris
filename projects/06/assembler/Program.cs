@@ -6,7 +6,6 @@ namespace assembler
     {
         static void Main(string[] args)
         {
-            Code myCode = new Code();
             SymbolTable mySymbolTable = new SymbolTable();
             if (args == null || args.Length == 0)
             {
@@ -16,7 +15,10 @@ namespace assembler
 
             System.IO.StreamReader file = new System.IO.StreamReader(args[0]);
             Parser myParser = new Parser(file);
-            myParser.Parse();
+            foreach(var line in myParser.Parse())
+            {
+                System.Console.WriteLine(line);
+            };
         }
     }
 }
