@@ -14,11 +14,15 @@ namespace assembler
             }
 
             System.IO.StreamReader file = new System.IO.StreamReader(args[0]);
+            System.IO.StreamWriter outFile = new System.IO.StreamWriter("Prog.hack");
+
             Parser myParser = new Parser(file);
             foreach(var line in myParser.Parse())
             {
-                System.Console.WriteLine(line);
+                outFile.WriteLine(line);
             };
+            file.Close();
+            outFile.Close();
         }
     }
 }
