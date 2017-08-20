@@ -9,11 +9,23 @@ class Parser
     private System.IO.StreamReader fileToRead;
     private String currentCommandString;
     private IEnumerator<string> commandsSet;
+    private int programCounter;
+    SymbolTable symbolTable = new SymbolTable();
 
-    public Parser(System.IO.StreamReader file)
+    public Parser(string filename)
     {
-        fileToRead = file;
+        System.IO.StreamReader fileFirstPass = new System.IO.StreamReader(filename);
+
+        System.IO.StreamReader file = new System.IO.StreamReader(filename);
+
+        fileToRead = fileFirstPass;
         var cmdsEnumerator = GetCommands();
+        commandsSet = cmdsEnumerator.GetEnumerator();
+        programCounter = 0;
+        ParseForSymbols();
+        fileFirstPass.Close();
+        fileToRead = file;
+        cmdsEnumerator = GetCommands();
         commandsSet = cmdsEnumerator.GetEnumerator();
     }
 
@@ -47,6 +59,17 @@ class Parser
             }
         }
         fileToRead.Close();
+    }
+
+    bool IsDigitsOnly(string str)
+    {
+        foreach (char c in str)
+        {
+            if (c < '0' || c > '9')
+                return false;
+        }
+
+        return true;
     }
 
     public string CommandType()
@@ -134,6 +157,30 @@ class Parser
         }
     }
 
+    public void ParseForSymbols()
+    {
+        bool firstRun=true;
+
+        while((firstRun && currentCommandString == null) || (!firstRun && currentCommandString != null)){
+            Advance();
+            firstRun=false;
+            if(currentCommandString != null){
+                string dest = Dest();
+                string symbol = Symbol();
+                string comp = Comp();
+                string jump = Jump();
+                string currentCommandType = CommandType();
+                if(currentCommandType == "A_COMMAND"){
+                    ++programCounter;
+                }else if(currentCommandType == "C_COMMAND"){
+                    ++programCounter;
+                }else if(currentCommandType == "L_COMMAND"){
+                    symbolTable.AddEntry(symbol, programCounter);
+                }
+            }
+        }
+    }
+
     public IEnumerable<string> Parse()
     {
         Code codeGenerator = new Code();
@@ -149,7 +196,17 @@ class Parser
                 string jump = Jump();
                 string currentCommandType = CommandType();
                 if(currentCommandType == "A_COMMAND"){
-                    yield return codeGenerator.Ainstruction(Int16.Parse(symbol));
+                    if(!IsDigitsOnly(symbol)){
+                        if(!symbolTable.Contains(symbol)){
+                            int RAMAddr = symbolTable.GetUsableRAMLocation();
+                            symbolTable.AddEntry(symbol, RAMAddr);
+                            yield return codeGenerator.Ainstruction(RAMAddr);
+                        }else{
+                            yield return codeGenerator.Ainstruction(symbolTable.GetAddress(symbol));
+                        }
+                    }else{
+                        yield return codeGenerator.Ainstruction(Int16.Parse(symbol));
+                    }
                 }else if(currentCommandType == "C_COMMAND"){
                     string cInstruction = codeGenerator.Comp(comp);
                     string dInstruction = codeGenerator.Dest(dest);
